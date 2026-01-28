@@ -18,3 +18,10 @@ Thumbs.db
 
 # Logs
 *.log
+
+target/
+*.class
+*.log
+.idea/
+.vscode/
+.DS_Store

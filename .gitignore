@@ -1,0 +1,20 @@
+# Maven
+target/
+
+# SBT leftovers (por si existían)
+project/target/
+project/project/
+streams/
+
+# IDE
+.vscode/
+.idea/
+.metals/
+.bloop/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

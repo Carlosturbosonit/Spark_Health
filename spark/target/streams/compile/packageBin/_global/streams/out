@@ -4,8 +4,12 @@
 [0m[[0m[0mdebug[0m] [0m[0m	  /workspace/spark/target/scala-2.12/classes/com[0m
 [0m[[0m[0mdebug[0m] [0m[0m	com/sparkhealth[0m
 [0m[[0m[0mdebug[0m] [0m[0m	  /workspace/spark/target/scala-2.12/classes/com/sparkhealth[0m
-[0m[[0m[0mdebug[0m] [0m[0m	com/sparkhealth/FluviewETL$.class[0m
-[0m[[0m[0mdebug[0m] [0m[0m	  /workspace/spark/target/scala-2.12/classes/com/sparkhealth/FluviewETL$.class[0m
-[0m[[0m[0mdebug[0m] [0m[0m	com/sparkhealth/FluviewETL.class[0m
-[0m[[0m[0mdebug[0m] [0m[0m	  /workspace/spark/target/scala-2.12/classes/com/sparkhealth/FluviewETL.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	com/sparkhealth/SparkHealthETL$.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  /workspace/spark/target/scala-2.12/classes/com/sparkhealth/SparkHealthETL$.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	com/sparkhealth/SparkHealthETL$Config$.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  /workspace/spark/target/scala-2.12/classes/com/sparkhealth/SparkHealthETL$Config$.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	com/sparkhealth/SparkHealthETL$Config.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  /workspace/spark/target/scala-2.12/classes/com/sparkhealth/SparkHealthETL$Config.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	com/sparkhealth/SparkHealthETL.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  /workspace/spark/target/scala-2.12/classes/com/sparkhealth/SparkHealthETL.class[0m
 [0m[[0m[0mdebug[0m] [0m[0mDone packaging.[0m

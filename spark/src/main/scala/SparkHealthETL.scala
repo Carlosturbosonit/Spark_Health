@@ -1,33 +1,45 @@
 package com.sparkhealth
 
-import org.apache.spark.sql.{SparkSession}
+import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
 
 /*
 OBJECTIVE
 ---------
-This Spark job performs the "SILVER" transformation step for FluView data.
+This Spark job performs the SILVER transformation step for FluView data.
 
-INPUT  (Bronze / Raw):
-- JSON files produced by Airflow ingestion:
-  - fluview_ili.json
-  - fluview_clinical.json
+INPUT (Bronze / Raw)
+--------------------
+JSON files produced by the Airflow ingestion DAG:
+- fluview_ili.json
+- fluview_clinical.json
 
-OUTPUT (Silver / Clean):
-- Cleaned, normalized Parquet datasets:
-  - ili/
-  - clinical/
+Example input path:
+  /opt/airflow/data/raw/fluview/ingest_date=2026-01-27/
 
-This job is executed by Airflow using spark-submit.
+OUTPUT (Silver / Clean)
+----------------------
+Cleaned and normalized Parquet datasets:
+- ili/
+- clinical/
+
+Example output path:
+  /opt/airflow/data/clean/fluview/ingest_date=2026-01-27/
+
+EXECUTION
+---------
+Triggered by Airflow using SparkSubmitOperator:
+spark-submit --class com.sparkhealth.SparkHealthETL \
+  spark-health_2.12-0.1.0.jar \
+  --mode clean \
+  --raw <raw_path> \
+  --clean <clean_path>
 */
 
 object SparkHealthETL {
 
   /*
-  Config class to capture arguments passed by Airflow:
-  --mode   : which transformation to run (clean, join, etc.)
-  --raw    : raw input path
-  --clean  : output clean path
+  Configuration model capturing parameters passed by Airflow
   */
   case class Config(
     mode: String = "",
@@ -36,11 +48,10 @@ object SparkHealthETL {
   )
 
   /*
-  Parses command-line arguments passed by SparkSubmitOperator
-  Example:
+  Parses command-line arguments of the form:
     --mode clean
-    --raw /opt/airflow/data/raw/fluview/ingest_date=2026-01-27
-    --clean /opt/airflow/data/clean/fluview/ingest_date=2026-01-27
+    --raw /path/to/raw
+    --clean /path/to/clean
   */
   def parseArgs(args: Array[String]): Config = {
     args.sliding(2, 2).foldLeft(Config()) {
@@ -53,18 +64,24 @@ object SparkHealthETL {
 
   def main(args: Array[String]): Unit = {
 
-    // Parse and validate arguments
+    // -----------------------
+    // Argument validation
+    // -----------------------
     val config = parseArgs(args)
-    require(config.mode.nonEmpty, "--mode required")
-    require(config.raw.nonEmpty, "--raw required")
-    require(config.clean.nonEmpty, "--clean required")
+    require(config.mode.nonEmpty,  "--mode is required")
+    require(config.raw.nonEmpty,   "--raw is required")
+    require(config.clean.nonEmpty, "--clean is required")
 
-    // Create Spark session
+    // -----------------------
+    // Spark session
+    // -----------------------
     val spark = SparkSession.builder()
       .appName(s"spark-health-${config.mode}")
       .getOrCreate()
 
-    // Dispatch transformation based on mode
+    // -----------------------
+    // Dispatch by mode
+    // -----------------------
     config.mode match {
       case "clean" =>
         runClean(spark, config.raw, config.clean)
@@ -77,32 +94,44 @@ object SparkHealthETL {
   }
 
   /*
-  CLEAN TRANSFORMATION
-  --------------------
-  1. Reads raw JSON files (ILI + Clinical)
-  2. Adds ingestion timestamp
-  3. Removes duplicates
-  4. Writes Parquet output partitioned by dataset
+  CLEAN TRANSFORMATION (Bronze → Silver)
+  -------------------------------------
+  Transformations applied:
+  1. Read raw JSON datasets (ILI + Clinical)
+  2. Add ingestion timestamp (lineage / auditing)
+  3. Remove duplicate rows
+  4. Write clean Parquet outputs
   */
   def runClean(spark: SparkSession, rawPath: String, cleanPath: String): Unit = {
 
-    // Read raw datasets
+    // -----------------------
+    // Read raw data
+    // -----------------------
     val ili = spark.read.json(s"$rawPath/fluview_ili.json")
     val clinical = spark.read.json(s"$rawPath/fluview_clinical.json")
 
-    // Basic cleaning and normalization
+    // -----------------------
+    // Clean + normalize
+    // -----------------------
     val cleanedIli = ili
-      .withColumn("ingest_ts", current_timestamp()) // lineage & auditing
-      .dropDuplicates()                             // data quality
+      .withColumn("ingest_ts", current_timestamp())
+      .dropDuplicates()
 
+    val cleanedClinical = clinical
+      .withColumn("ingest_ts", current_timestamp())
+      .dropDuplicates()
+
+    // -----------------------
     // Write Silver layer
+    // -----------------------
     cleanedIli.write
       .mode("overwrite")
       .parquet(s"$cleanPath/ili")
 
-    clinical.write
+    cleanedClinical.write
       .mode("overwrite")
       .parquet(s"$cleanPath/clinical")
   }
 }
+
 

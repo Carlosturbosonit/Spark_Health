@@ -13,8 +13,10 @@
     <spark.version>3.5.7</spark.version>
     <scala.binary>2.12</scala.binary>
     <scala.version>2.12.18</scala.version>
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
+
+    <!-- bytecode compatible con Java 8 -->
+    <maven.compiler.release>8</maven.compiler.release>
+
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
@@ -23,6 +25,17 @@
     <finalName>fluview-spark-job-all</finalName>
 
     <plugins>
+
+      <!-- Fuerza release 8 si hubiese código Java -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.11.0</version>
+        <configuration>
+          <release>${maven.compiler.release}</release>
+        </configuration>
+      </plugin>
+
       <!-- Compilación Scala -->
       <plugin>
         <groupId>net.alchim31.maven</groupId>
@@ -47,6 +60,10 @@
         </executions>
         <configuration>
           <scalaVersion>${scala.version}</scalaVersion>
+          <!-- Opción 1: Scala genera bytecode JVM 1.8 -->
+          <args>
+            <arg>-target:jvm-1.8</arg>
+          </args>
         </configuration>
       </plugin>
 
